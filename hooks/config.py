@@ -40,11 +40,14 @@ def main(argv: list) -> int:
     if argv[:1] == ["get"]:
         print(load()["voice"])
         return 0
+    if argv[:1] == ["path"]:
+        print(config_dir())
+        return 0
     if len(argv) == 2 and argv[0] == "set" and argv[1] in VOICES:
         save({**load(), "voice": argv[1]})
         print(f"voice={argv[1]}")
         return 0
-    print("사용법: config.py get | set <haeyo|banmal|hapnida|off>", file=sys.stderr)
+    print("사용법: config.py get | path | set <haeyo|banmal|hapnida|off>", file=sys.stderr)
     return 2
 
 

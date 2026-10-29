@@ -65,6 +65,10 @@ class TestHooks(HookCase):
     def test_config_rejects_bad_voice(self):
         self.assertEqual(self.cli("set", "pirate").returncode, 2)
 
+    def test_config_path_prints_xdg_dir(self):
+        r = self.cli("path")
+        self.assertEqual(r.stdout.strip(), os.path.join(self.tmp, "im-a-monkey"))
+
     def test_persona_rule_count(self):
         with open(os.path.join(ROOT, "persona", "core.md"), encoding="utf-8") as f:
             rules = [l for l in f if re.match(r"^\d+\. ", l)]
