@@ -32,6 +32,11 @@ def _nums(s: str) -> list[str]:
     return [n.rstrip(".,") for n in _NUM.findall(s)]
 
 
+def _toks(s: str) -> list[str]:
+    # 문장 끝 마침표 등 꼬리 구두점은 토큰의 일부가 아니다
+    return [t.rstrip(".-/") for t in _TOK.findall(s)]
+
+
 def _links(s: str) -> list[str]:
     return _LINK.findall(s) + _QUOTE.findall(s)
 
@@ -41,7 +46,7 @@ def compare(original: str, revised: str) -> dict:
     r = revised.replace("\r\n", "\n")
     res = {
         "missing_numbers": _missing(_nums(o), _nums(r)),
-        "missing_tokens": _missing(_TOK.findall(o), _TOK.findall(r)),
+        "missing_tokens": _missing(_toks(o), _toks(r)),
         "negation_delta": len(_NEG.findall(r)) - len(_NEG.findall(o)),
         "missing_links": _missing(_links(o), _links(r)),
         "edit_rate": round(1 - difflib.SequenceMatcher(None, o.split(), r.split()).ratio(), 2),

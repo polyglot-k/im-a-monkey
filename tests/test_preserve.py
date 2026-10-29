@@ -19,6 +19,9 @@ class PreserveTest(unittest.TestCase):
         self.assertTrue(r["ok"])
         self.assertGreater(r["edit_rate"], 0)
 
+    def test_token_trailing_period(self):
+        self.assertEqual(compare("캐시는 Redis.", "Redis와 함께 쓴다.")["missing_tokens"], [])
+
     def test_link_kept(self):
         self.assertFalse(compare("[문서](https://x.y/a) 참고", "문서 참고")["ok"])
 
