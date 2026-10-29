@@ -1,6 +1,6 @@
 # im-a-monkey
 
-<p align="center"><img src="assets/logo.svg" alt="im-a-monkey 로고: 눈이 몰린 원숭이" width="160"></p>
+<p align="center"><img src="assets/wordmark.svg" alt="im-a-monkey 로고: 한쪽 눈이 터미널 프롬프트인 원숭이" width="560"></p>
 
 한국어 글을 원숭이도 알아듣게, 그리고 AI가 아니라 영장류가 쓴 글처럼 쓰게 돕는 Claude Code 플러그인이에요. 짧게 쓰는 게 아니라 따라가기 쉽게 쓰는 게 목표예요.
 
