@@ -17,9 +17,11 @@ RUNS = ROOT / "evals" / "runs"
 
 def run_claude(prompt: str, plugin_dir: str | None) -> str:
     # 두 팔 모두 빈 임시 폴더에서, 프로젝트 설정만 읽고 MCP 없이 돌린다. 차이는 플러그인뿐이다.
+    # 도구 권한은 두 팔에 똑같이 준다. headless에선 허용하지 않으면 스크립트 실행·참조 읽기가 막힌다.
     cmd = ["claude", "-p", prompt, "--setting-sources", "project", "--strict-mcp-config"]
+    cmd += ["--allowedTools", "Read,Write,Edit,Bash(python3:*)"]
     if plugin_dir:
-        cmd += ["--plugin-dir", plugin_dir]
+        cmd += ["--plugin-dir", plugin_dir, "--add-dir", plugin_dir]
     r = subprocess.run(
         cmd, capture_output=True, text=True, timeout=300, cwd=tempfile.mkdtemp()
     )
@@ -75,16 +77,28 @@ def main() -> int:
     ap.add_argument("skill")
     ap.add_argument("--case")
     args = ap.parse_args()
-    cases = sorted(p for p in (BEHAVIOR / args.skill).iterdir() if p.is_dir())
+    skill_dir = BEHAVIOR / args.skill
+    if not skill_dir.is_dir():
+        print(f"스킬 폴더가 없어요: {skill_dir}", file=sys.stderr)
+        return 2
+    cases = sorted(p for p in skill_dir.iterdir() if p.is_dir())
     if args.case:
         cases = [p for p in cases if p.name == args.case]
+        if not cases:
+            print(f"사례가 없어요: {args.skill}/{args.case}", file=sys.stderr)
+            return 2
     stamp = datetime.now().strftime("%Y%m%d-%H%M")
-    tally = {"skill": 0, "baseline": 0, "tie": 0}
+    tally = {"skill": 0, "baseline": 0, "tie": 0, "error": 0}
     for case in cases:
-        res = run_case(case, RUNS / stamp / args.skill / case.name)
+        try:
+            res = run_case(case, RUNS / stamp / args.skill / case.name)
+        except (RuntimeError, subprocess.TimeoutExpired, OSError) as e:
+            tally["error"] += 1
+            print(f"ERROR {case.name}: {e}")
+            continue
         tally[res] += 1
         print(f"{case.name}: {res}")
-    print(f"skill {tally['skill']} / baseline {tally['baseline']} / tie {tally['tie']}")
+    print(f"skill {tally['skill']} / baseline {tally['baseline']} / tie {tally['tie']} / error {tally['error']}")
     return 0
 
 

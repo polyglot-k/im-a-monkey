@@ -16,13 +16,13 @@ python3 evals/judge.py <스킬>
 python3 evals/judge.py <스킬> --case <사례>
 ```
 
-결과는 `evals/runs/<날짜-시각>/<스킬>/<사례>/`에 `baseline.md`, `skill.md`, `verdict.json`으로 남고, 마지막에 `skill W / baseline L / tie T`를 출력해요. `evals/runs/`는 git에서 무시해요.
+결과는 `evals/runs/<날짜-시각>/<스킬>/<사례>/`에 `baseline.md`, `skill.md`, `verdict.json`으로 남고, 마지막에 `skill W / baseline L / tie T / error E`를 출력해요. 사례 하나가 실패하거나 시간 초과여도 `ERROR <사례>: <이유>`만 찍고 다음 사례로 넘어가요. `evals/runs/`는 git에서 무시해요.
 
 두 판정이 엇갈리면 무승부로 세요. 한쪽 순서만 이긴 건 위치 편향일 수 있어서예요.
 
 ## 격리
 
-두 쪽은 플러그인만 다르게 돌려요. 매번 빈 임시 폴더에서 실행해서 프로젝트의 CLAUDE.md나 저장소 맥락이 섞이지 않고, `--setting-sources project --strict-mcp-config`로 다른 플러그인·사용자 설정·MCP 서버를 건너뛰어요. 스킬 쪽에만 `--plugin-dir <저장소 경로>`를 붙여요. 판정자는 플러그인 없이 돌아요.
+두 쪽은 플러그인만 다르게 돌려요. 매번 빈 임시 폴더에서 실행해서 프로젝트의 CLAUDE.md나 저장소 맥락이 섞이지 않고, `--setting-sources project --strict-mcp-config`로 다른 플러그인·사용자 설정·MCP 서버를 건너뛰어요. 스킬 쪽에만 `--plugin-dir <저장소 경로>`를 붙여요. 판정자는 플러그인 없이 돌아요. 두 쪽 모두 `--allowedTools`로 `Read`, `Write`, `Edit`, `Bash(python3:*)`를 허용하고, 스킬 쪽에는 `--add-dir`로 플러그인 폴더도 열어서 스킬이 스크립트와 참조 파일을 실제로 쓸 수 있어요.
 
 사용자 수준 CLAUDE.md 같은 메모리는 두 쪽에 똑같이 로드될 수 있어요. 차이를 만들지는 않지만 답변 문체에는 영향을 줄 수 있어요.
 
