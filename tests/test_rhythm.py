@@ -15,11 +15,30 @@ class RhythmTest(unittest.TestCase):
         t = "짧다. 이 문장은 조금 더 길게 써서 리듬을 바꾼다. 그래요? 마지막 문장은 다시 꽤 길게 늘여서 여러 어절을 담아 본다. 끝. 정말 끝이에요."
         self.assertEqual([f for f in flags(measure(t)) if f.startswith("A15")], [])
 
-    def test_formal_register_not_flagged(self):
+    def test_formal_register_run_flagged(self):
         t = ("배포는 매주 화요일에 합니다. 변경이 큰 주에는 하루 전에 리허설 환경에서 먼저 확인합니다. "
              "문제가 생기면 되돌립니다. 되돌린 뒤에는 원인을 적어 두고 다음 배포 전에 같이 봅니다. "
              "급한 수정은 따로 올립니다. 이때도 리뷰는 한 명 이상에게 받습니다.")
+        self.assertIn("A15 같은 어미 연속 6회", flags(measure(t)))
+
+    def test_varied_formal_endings_not_flagged(self):
+        t = ("배포는 매주 화요일에 합니다. 변경이 큰 주에는 하루 전에 리허설 환경에서 먼저 확인하죠. "
+             "문제가 생기면 어떻게 할까요? 되돌린 뒤 원인을 적어 두고 다음 배포 전에 같이 봅니다. "
+             "급한 수정은 예외입니다. 이때도 리뷰는 한 명 이상에게 받아야 하고요.")
         self.assertEqual([f for f in flags(measure(t)) if f.startswith("A15")], [])
+
+    def test_same_ending_share_flagged(self):
+        a, rest = "설정을 바꿔요.", ["값을 읽었죠.", "로그가 남습니다.", "끝났나요?", "다음 단계."]
+        t = " ".join([a, rest[0], a, rest[1], a, rest[2], a, rest[3], rest[0], rest[1]])
+        self.assertEqual(measure(t)["max_same_ending_run"], 1)
+        self.assertIn("A15 같은 어미 비율 40%", flags(measure(t)))
+
+    def test_no_long_sentences_flagged(self):
+        short = ["설정을 바꿔요.", "값을 읽었죠.", "다시 돌렸어요?", "로그가 남습니다.", "끝."] * 3
+        self.assertIn("A15 긴 문장이 거의 없음: 붙어 다니는 두 문장을 이어 쓰세요", flags(measure(" ".join(short))))
+        long_ = "어제 저녁 배포 뒤 결제 화면이 느려졌다는 문의가 들어와서 로그를 보니 외부 결제사 응답이 평소보다 세 배쯤 늦게 돌아오고 있었고 그 사이 앱의 재시도가 겹쳐 대기열이 점점 길어졌어요."
+        self.assertGreaterEqual(len(long_), 100)
+        self.assertFalse(any("긴 문장이 거의 없음" in f for f in flags(measure(" ".join(short + [long_])))))
 
     def test_bullet_ratio(self):
         self.assertAlmostEqual(measure("- a\n- b\n문장이다.\n- c")["bullet_ratio"], 0.75)

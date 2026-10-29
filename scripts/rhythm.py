@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import os
 import re
@@ -16,8 +17,15 @@ _BULLET = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s")
 _SPLIT = re.compile(r"(?<=[.?!])\s+")
 _BOLD = re.compile(r"\*\*[^*\n]+\*\*")
 _TAIL = re.compile(r"[.?!\s]+$")
-# 문장 끝 격식·존댓말 어미. 이 어미는 원래 반복되는 게 정상이라 연속 기준을 따로 둔다.
-_FORMAL = ("다", "어요", "아요", "해요", "에요", "예요", "세요")
+_HTML_DROP = re.compile(r"<(style|script|svg)\b.*?</\1>|<!--.*?-->", re.S | re.I)
+_HTML_BLOCK = re.compile(r"</?(p|div|li|h[1-6]|tr|td|th|br|section|header|footer|table|ul|ol|figcaption|blockquote)\b[^>]*>", re.I)
+_HTML_TAG = re.compile(r"<[^>]+>")
+
+
+def _html_text(text: str) -> str:
+    # ponytail: 정규식으로 태그만 벗긴다. 본문 문장 리듬만 재면 돼서 파서는 두지 않는다.
+    text = _HTML_BLOCK.sub("\n", _HTML_DROP.sub("", text))
+    return html.unescape(_HTML_TAG.sub("", text))
 
 
 def _lines(text: str) -> list[str]:
@@ -40,26 +48,27 @@ def _ending(s: str) -> str:
 
 
 def measure(text: str) -> dict:
+    if re.search(r"<(html|body)\b", text, re.I):
+        text = _html_text(text)
     sents = split_sentences(text)
     lens = [eojeol_count(s) for s in sents]
     lines = _lines(text)
-    run = best = formal_best = 0
+    run = best = 0
     prev = None
-    for s in sents:
-        e = _ending(s)
+    ends = [_ending(s) for s in sents]
+    for e in ends:
         run = run + 1 if e == prev else 1
         prev = e
-        if e.endswith(_FORMAL):
-            formal_best = max(formal_best, run)
-        else:
-            best = max(best, run)
+        best = max(best, run)
+    top = max((ends.count(e) for e in set(ends)), default=0)
     words = sum(lens)
     return {
         "sentences": len(sents),
         "mean_eojeol": statistics.mean(lens) if lens else 0.0,
         "stdev_eojeol": statistics.pstdev(lens) if lens else 0.0,
         "max_same_ending_run": best,
-        "max_formal_ending_run": formal_best,
+        "top_ending_share": top / len(sents) if sents else 0.0,
+        "long_100char_share": sum(1 for s in sents if len(s) >= 100) / len(sents) if sents else 0.0,
         "bullet_ratio": sum(1 for ln in lines if _BULLET.match(ln)) / len(lines) if lines else 0.0,
         "bold_per_100": len(_BOLD.findall(strip_ignored(text))) * 100 / words if words else 0.0,
         "long_sentences": [i + 1 for i, n in enumerate(lens) if n > 40],
@@ -73,9 +82,11 @@ def flags(m: dict) -> list[str]:
         out.append("A15 문장 길이가 고르다")
     if m["max_same_ending_run"] >= 4:
         out.append(f"A15 같은 어미 연속 {m['max_same_ending_run']}회")
-    # 합니다체·해요체는 길이까지 고를 때만 같은 어미 연속으로 본다
-    if m["max_formal_ending_run"] >= 6 and flat:
-        out.append(f"A15 같은 어미 연속 {m['max_formal_ending_run']}회")
+    # 합니다체·해요체도 예외 없이 센다. 같은 말투 안에서 어미를 바꿔 쓰는 게 고치는 방법이다.
+    if m["sentences"] >= 10 and m["top_ending_share"] >= 0.4:
+        out.append(f"A15 같은 어미 비율 {m['top_ending_share']:.0%}")
+    if m["sentences"] >= 15 and m["long_100char_share"] < 0.05:
+        out.append("A15 긴 문장이 거의 없음: 붙어 다니는 두 문장을 이어 쓰세요")
     if m["bullet_ratio"] > 0.6:
         out.append(f"A16 불릿 비율 {m['bullet_ratio']:.0%}")
     if m["bold_per_100"] > 3:

@@ -45,6 +45,13 @@ class LintTest(unittest.TestCase):
         self.assertEqual([f for f in lint_text("✓ 완료 ✗ 실패 ★ ⚠") if f.id == "A09"], [])
         self.assertEqual([f.id for f in lint_text("🚀 배포")], ["A09"])
 
+    def test_comma_after_connective(self):
+        hits = lambda t: [f for f in lint_text(t) if f.id == "W09"]
+        self.assertEqual(len(hits("문서를 읽고, 고칠 곳을 적어요.")), 1)
+        self.assertEqual(len(hits("값이 크지만, 괜찮아요. 돌아가면서, 봐요.")), 2)
+        self.assertEqual(hits("참고, 광고, 재고는 그대로예요. 그리고, 그래서, 하지만 같은 접속사도요."), [])
+        self.assertEqual(hits("문서를 읽고 고칠 곳을 적어요."), [])
+
     def test_every_pattern_id_in_catalog(self):
         self.assertTrue({p[0] for p in PATTERNS} <= catalog_ids("catalog/antipatterns.md"))
 
