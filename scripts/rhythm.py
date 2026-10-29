@@ -45,7 +45,9 @@ def split_sentences(text: str) -> list[str]:
 
 
 def _ending(s: str) -> str:
-    return _TAIL.sub("", s)[-2:]
+    tail = _TAIL.sub("", s)
+    # 합니다체는 끝 두 글자가 늘 "니다"라서 세 글자로 센다(습니다·입니다·합니다를 다른 어미로).
+    return tail[-3:] if tail[-2:] in ("니다", "니까") else tail[-2:]
 
 
 def measure(text: str) -> dict:
