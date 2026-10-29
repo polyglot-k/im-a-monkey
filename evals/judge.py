@@ -54,19 +54,29 @@ def combine(v_ab: str, v_ba: str) -> str:
     return "tie"
 
 
-def run_case(case: Path, out: Path) -> str:
+def majority(verdicts: list[str]) -> str:
+    # 최다 득표. 최다가 둘 이상이면 tie.
+    top = max(verdicts.count(v) for v in set(verdicts))
+    winners = {v for v in verdicts if verdicts.count(v) == top}
+    return winners.pop() if len(winners) == 1 else "tie"
+
+
+def run_case(case: Path, out: Path, repeat: int = 1) -> str:
     prompt = (case / "prompt.md").read_text(encoding="utf-8")
     rubric = (case / "rubric.md").read_text(encoding="utf-8")
     base = run_claude(prompt, None)
     skill = run_claude(prompt, str(ROOT))
-    v_ab = parse_verdict(run_claude(judge_prompt(rubric, base, skill), None))
-    v_ba = parse_verdict(run_claude(judge_prompt(rubric, skill, base), None))
-    result = combine(v_ab, v_ba)
+    rounds = []
+    for _ in range(repeat):
+        v_ab = parse_verdict(run_claude(judge_prompt(rubric, base, skill), None))
+        v_ba = parse_verdict(run_claude(judge_prompt(rubric, skill, base), None))
+        rounds.append({"ab": v_ab, "ba": v_ba, "combined": combine(v_ab, v_ba)})
+    result = majority([r["combined"] for r in rounds])
     out.mkdir(parents=True, exist_ok=True)
     (out / "baseline.md").write_text(base, encoding="utf-8")
     (out / "skill.md").write_text(skill, encoding="utf-8")
     (out / "verdict.json").write_text(
-        json.dumps({"ab": v_ab, "ba": v_ba, "result": result}, ensure_ascii=False),
+        json.dumps({"rounds": rounds, "final": result}, ensure_ascii=False),
         encoding="utf-8",
     )
     return result
@@ -76,7 +86,11 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("skill")
     ap.add_argument("--case")
+    ap.add_argument("--repeat", type=int, default=1, help="판정 반복 횟수(다수결)")
     args = ap.parse_args()
+    if args.repeat < 1:
+        print("--repeat은 1 이상이어야 해요", file=sys.stderr)
+        return 2
     skill_dir = BEHAVIOR / args.skill
     if not skill_dir.is_dir():
         print(f"스킬 폴더가 없어요: {skill_dir}", file=sys.stderr)
@@ -91,7 +105,7 @@ def main() -> int:
     tally = {"skill": 0, "baseline": 0, "tie": 0, "error": 0}
     for case in cases:
         try:
-            res = run_case(case, RUNS / stamp / args.skill / case.name)
+            res = run_case(case, RUNS / stamp / args.skill / case.name, args.repeat)
         except (RuntimeError, subprocess.TimeoutExpired, OSError) as e:
             tally["error"] += 1
             print(f"ERROR {case.name}: {e}")

@@ -14,9 +14,12 @@
 ```
 python3 evals/judge.py <스킬>
 python3 evals/judge.py <스킬> --case <사례>
+python3 evals/judge.py <스킬> --repeat 3
 ```
 
-결과는 `evals/runs/<날짜-시각>/<스킬>/<사례>/`에 `baseline.md`, `skill.md`, `verdict.json`으로 남고, 마지막에 `skill W / baseline L / tie T / error E`를 출력해요. 사례 하나가 실패하거나 시간 초과여도 `ERROR <사례>: <이유>`만 찍고 다음 사례로 넘어가요. `evals/runs/`는 git에서 무시해요.
+`--repeat N`(기본 1)은 사례마다 기준선·스킬 답을 한 번만 만들고, 순서를 바꾼 판정만 N번 돌려요. 사례 결과는 N번의 최종 판정 중 다수결이고, 동률이면 `tie`예요. 판정 한 번은 결과가 자주 뒤집혀요. 결과를 믿기 전에 `--repeat 3`으로 돌리는 걸 권해요. 답 생성 자체의 흔들림은 이 옵션으로 줄지 않아요.
+
+결과는 `evals/runs/<날짜-시각>/<스킬>/<사례>/`에 `baseline.md`, `skill.md`, `verdict.json`으로 남고(`verdict.json`에는 회차별 `rounds`와 `final`이 들어 있어요), 마지막에 `skill W / baseline L / tie T / error E`를 출력해요. 사례 하나가 실패하거나 시간 초과여도 `ERROR <사례>: <이유>`만 찍고 다음 사례로 넘어가요. `evals/runs/`는 git에서 무시해요.
 
 두 판정이 엇갈리면 무승부로 세요. 한쪽 순서만 이긴 건 위치 편향일 수 있어서예요.
 
