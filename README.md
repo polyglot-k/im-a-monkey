@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/Claude_Code-plugin-d97757" alt="Claude Code plugin">
   <img src="https://img.shields.io/badge/한국어-first-ffd23f" alt="한국어 우선">
   <img src="https://img.shields.io/badge/python-3.9%2B%20stdlib-3776ab" alt="Python 3.9 이상, 표준 라이브러리만">
-  <img src="https://img.shields.io/badge/tests-65%20passing-2ea043" alt="테스트 65개 통과">
+  <img src="https://img.shields.io/badge/tests-66%20passing-2ea043" alt="테스트 66개 통과">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT 라이선스">
 </p>
 
@@ -29,7 +29,7 @@
 /plugin install im-a-monkey@im-a-monkey
 ```
 
-새 세션부터 페르소나가 켜져요. Claude가 결론을 먼저 말하고 원인과 결과처럼 붙어 다니는 사실은 한 문장으로 이어 말해요. 문서를 부탁받으면 목적에 맞는 구조부터 잡죠.
+새 세션부터 페르소나가 켜져요. Claude가 결론을 먼저 말하고 원인과 결과처럼 붙어 다니는 사실은 한 문장으로 이어 말해요. 문서를 부탁받으면 목적에 맞는 구조부터 잡아요.
 
 ## 이렇게 쓰길 권해요
 
@@ -56,7 +56,7 @@
 
 ### 문서 쓰기
 
-요청에 독자와 할 일을 한 줄 붙이면 `monkey-doc`이 의도와 구조를 정한 다음 그림 자리는 `monkey-visual`에, 문장은 `monkey-human`의 `fix` 모드에 넘기고 `lint.py`와 `visual.py`가 0건이 될 때까지 고쳐요. 파일로 저장할 때 훅이 린트 결과를 한 번 더 알려 주지만 막지는 않죠. 결과가 마음에 안 들면 그 자리에서 짚으면 되고 같은 지적이 또 나오면 `monkey-learn`으로 규칙을 남겨요.
+요청에 독자와 할 일을 한 줄 붙이면 `monkey-doc`이 의도와 구조를 정한 다음 그림 자리는 `monkey-visual`에, 문장은 `monkey-human`의 `fix` 모드에 넘기고 `lint.py`와 `visual.py`가 0건이 될 때까지 고쳐요. 파일로 저장할 때 훅이 린트 결과를 한 번 더 알려 주지만 막지는 않아요. 결과가 마음에 안 들면 그 자리에서 짚으면 되고 같은 지적이 또 나오면 `monkey-learn`으로 규칙을 남겨요.
 
 ```mermaid
 flowchart LR
@@ -72,7 +72,7 @@ flowchart LR
 
 ### 남의 글 다듬기
 
-"AI 같아?"라고 물으면 `monkey-human`이 `scan` 모드로 글은 그대로 둔 채 수치와 고칠 곳 표본 3곳만 보여 줘요. 고칠 만하다 싶을 때 "문장 다듬어줘"라고 하면 `fix` 모드가 진단에 걸린 문장만 고치고 숫자·부정어·링크가 원문과 같은지 `preserve.py`로 대조한 결과까지 같이 보고하죠. 직접 맞춰 볼 때는 `python3 scripts/preserve.py old.md new.md`.
+"AI 같아?"라고 물으면 `monkey-human`이 `scan` 모드로 글은 그대로 둔 채 수치와 고칠 곳 표본 3곳만 보여 줘요. 고칠 만하다 싶을 때 "문장 다듬어줘"라고 하면 `fix` 모드가 진단에 걸린 문장만 고치고 숫자·부정어·링크가 원문과 같은지 `preserve.py`로 대조한 결과까지 같이 보고해요. 직접 맞춰 볼 때는 `python3 scripts/preserve.py old.md new.md`.
 
 ### 팀 저장소와 CI
 
@@ -82,7 +82,7 @@ flowchart LR
 python3 scripts/lint.py docs && python3 scripts/visual.py docs
 ```
 
-`rhythm.py`는 파일을 하나씩 받고 늘 0으로 끝나서 CI를 막지 않죠. 리듬 경고는 파일마다 따로 돌려서 봐요.
+`rhythm.py`는 파일을 하나씩 받고 늘 0으로 끝나서 CI를 막지 않아요. 리듬 경고는 파일마다 따로 돌려서 봐요.
 
 ## 이런 글을 고쳐요
 
@@ -129,7 +129,7 @@ flowchart LR
 
 ### 목적 없는 문서 (`monkey-doc`)
 
-누가 읽고 무엇을 할지부터 정한 다음 거기에 맞는 구조를 고르죠.
+누가 읽고 무엇을 할지부터 정한 다음 거기에 맞는 구조를 골라요.
 
 ```text
 요청: 지난주 로그인 장애를 팀에 공유할 글을 써 줘.
@@ -141,9 +141,9 @@ flowchart LR
 
 ## 왜 im-a-monkey인가요
 
-세는 일은 스크립트가 맡아요. 번역투 표지와 분량, 본문 속 파일 경로, 캡션 없는 그림은 정규식과 규칙으로 찾고 모델은 판단이 필요한 곳에만 쓰죠.
+세는 일은 스크립트가 맡아요. 번역투 표지와 분량, 본문 속 파일 경로, 캡션 없는 그림은 정규식과 규칙으로 찾고 모델은 판단이 필요한 곳에만 써요.
 
-없는 내용은 지어 넣지 않아요. 윤문한 뒤에는 숫자, 고유명사, 부정어, 링크가 원문과 같은지 스크립트로 대조해요. 문서에 빈칸이 있으면 지어 채우는 대신 `<채울 값>`으로 남기고 묻죠.
+없는 내용은 지어 넣지 않아요. 윤문한 뒤에는 숫자, 고유명사, 부정어, 링크가 원문과 같은지 스크립트로 대조해요. 문서에 빈칸이 있으면 지어 채우는 대신 `<채울 값>`으로 남기고 물어요.
 
 결정 요청, ADR, 장애 보고, 런북, 레퍼런스, 메시지, PR 설명, 교보재는 길이와 자세함은 물론 각주와 표를 쓸지까지 유형마다 따로 정해 뒀고 맞는 유형이 없으면 새 구조를 조립해요. "다음엔 이러지 마", "규칙으로 남겨" 같은 지적은 내 로컬 규칙으로 남아 다음 글부터 반영되고요.
 
@@ -173,9 +173,9 @@ flowchart LR
   F -- 통과 --> G[답]
   H[문서 저장] --> I[린트 알림]
 ```
-그림 3. 플러그인은 어디에서 끼어드나요? 세션을 시작할 때와 문서를 저장한 직후에 훅이 돌아요. 그 사이에는 스킬이 초안을 쓴 뒤 스크립트 결과를 보고 다시 고치죠.
+그림 3. 플러그인은 어디에서 끼어드나요? 세션을 시작할 때와 문서를 저장한 직후에 훅이 돌아요. 그 사이에는 스킬이 초안을 쓴 뒤 스크립트 결과를 보고 다시 고쳐요.
 
-훅은 세 개예요. 세션 시작 때 말투 규칙을 넣고 한국어 요청마다 두 줄짜리 리마인더를 붙이며 `.md`나 `.html`을 저장하면 린트 결과를 알려 줘요. 알리기만 할 뿐 어느 훅도 작업을 막지 않죠.
+훅은 세 개예요. 세션 시작 때 말투 규칙을 넣고 한국어 요청마다 두 줄짜리 리마인더를 붙이며 `.md`나 `.html`을 저장하면 린트 결과를 알려 줘요. 알리기만 할 뿐 어느 훅도 작업을 막지 않아요.
 
 ## 평가해 봤어요
 
@@ -183,7 +183,7 @@ flowchart LR
 
 ## 말투 바꾸기와 끄기
 
-기본 말투는 해요체예요. 대화 중에 "반말로 해"라고 하면 `monkey-voice`가 설정을 `haeyo`, `banmal`, `hapnida`, `off` 네 값 가운데 하나로 바꾸죠.
+기본 말투는 해요체예요. 대화 중에 "반말로 해"라고 하면 `monkey-voice`가 설정을 `haeyo`, `banmal`, `hapnida`, `off` 네 값 가운데 하나로 바꿔요.
 
 한 세션만 바꿀 때는 환경 변수가 설정 파일보다 먼저 적용돼요.
 
@@ -199,7 +199,7 @@ IM_A_MONKEY_VOICE=banmal claude
 python3 hooks/config.py path
 ```
 
-`$XDG_CONFIG_HOME/im-a-monkey/`가 있으면 그곳, 없으면 `~/.config/im-a-monkey/`예요. 안에는 `config.json`(말투)과 `overlay/antipatterns.md`(내가 추가한 안티패턴), `overlay/types/*.md`(내가 추가한 문서 유형)가 들어가는데 플러그인을 업데이트해도 이 폴더는 그대로 남죠.
+`$XDG_CONFIG_HOME/im-a-monkey/`가 있으면 그곳, 없으면 `~/.config/im-a-monkey/`예요. 안에는 `config.json`(말투)과 `overlay/antipatterns.md`(내가 추가한 안티패턴), `overlay/types/*.md`(내가 추가한 문서 유형)가 들어가는데 플러그인을 업데이트해도 이 폴더는 그대로 남아요.
 
 ## 스크립트만 쓰기
 
@@ -213,7 +213,7 @@ python3 hooks/config.py path
 | `visual.py` | 그림 캡션과 콜아웃 쓰임을 점검해요 | `python3 scripts/visual.py doc.md` |
 | `coderef.py` | 글에 적은 코드 위치가 그 커밋에 실제로 있는지 확인해요 | `python3 scripts/coderef.py doc.md --repo .` |
 
-`--json`을 붙이면 결과가 JSON으로 나와요. `lint.py`와 `visual.py`는 파일이나 폴더를 여럿 받죠.
+`--json`을 붙이면 결과가 JSON으로 나와요. `lint.py`와 `visual.py`는 파일이나 폴더를 여럿 받아요.
 
 ```bash
 python3 scripts/lint.py skills persona catalog README.md && python3 scripts/visual.py skills persona catalog README.md

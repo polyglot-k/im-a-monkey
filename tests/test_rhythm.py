@@ -44,6 +44,12 @@ class RhythmTest(unittest.TestCase):
         self.assertAlmostEqual(measure("- a\n- b\n문장이다.\n- c")["bullet_ratio"], 0.75)
 
 
+    def test_overused_variation_ending(self):
+        sents = ["이 문장은 길이가 조금씩 다르게 쓰였죠.", "짧죠.", "여기 문장은 조금 더 길게 늘여서 썼어요.", "그래서 고르게 보이지 않죠.",
+                 "끝은 다시 해요체로 맺어요.", "이번에도 섞었죠.", "그다음 문장은 평범하게 끝나요.", "마지막으로 하나 더 넣었죠.",
+                 "정리하면 이렇습니다.", "그리고 한 줄 더 써 봐요."]
+        self.assertTrue(any("죠" in f for f in flags(measure(" ".join(sents)))))
+
     def test_html_lines_not_sentences(self):
         t = "<p>\n  <a href=\"#a\">가</a> ·\n  <a href=\"#b\">나</a> ·\n  <a href=\"#c\">다</a> ·\n  <a href=\"#d\">라</a> ·\n</p>\n본문 문장이에요."
         self.assertEqual(measure(t)["sentences"], 1)

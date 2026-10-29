@@ -68,12 +68,17 @@ def measure(text: str) -> dict:
         "mean_eojeol": statistics.mean(lens) if lens else 0.0,
         "stdev_eojeol": statistics.pstdev(lens) if lens else 0.0,
         "max_same_ending_run": best,
+        "variation_endings": {v: sum(1 for x in sents if re.search(v + r"[.?!]?\W*$", x)) for v in _VARIATION},
         "top_ending_share": top / len(sents) if sents else 0.0,
         "long_100char_share": sum(1 for s in sents if len(s) >= 100) / len(sents) if sents else 0.0,
         "bullet_ratio": sum(1 for ln in lines if _BULLET.match(ln)) / len(lines) if lines else 0.0,
         "bold_per_100": len(_BOLD.findall(strip_ignored(text))) * 100 / words if words else 0.0,
         "long_sentences": [i + 1 for i, n in enumerate(lens) if n > 40],
     }
+
+
+# 어미를 섞으려다 한 가지 변주 어미로 몰리는 것도 반복이다.
+_VARIATION = ("죠", "거든요", "잖아요", "네요")
 
 
 def flags(m: dict) -> list[str]:
@@ -88,6 +93,9 @@ def flags(m: dict) -> list[str]:
         out.append(f"A15 같은 어미 비율 {m['top_ending_share']:.0%}")
     if m["sentences"] >= 15 and m["long_100char_share"] < 0.05:
         out.append("A15 긴 문장이 거의 없음: 붙어 다니는 두 문장을 이어 쓰세요")
+    for v, n in m.get("variation_endings", {}).items():
+        if n > 3 and n > 0.08 * m["sentences"]:
+            out.append(f"A15 '~{v}' 종결 {n}회: 평서 종결로 돌리거나 앞 문장과 이으세요")
     if m["bullet_ratio"] > 0.6:
         out.append(f"A16 불릿 비율 {m['bullet_ratio']:.0%}")
     if m["bold_per_100"] > 3:
