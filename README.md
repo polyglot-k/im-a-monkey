@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/Claude_Code-plugin-d97757" alt="Claude Code plugin">
   <img src="https://img.shields.io/badge/한국어-first-ffd23f" alt="한국어 우선">
   <img src="https://img.shields.io/badge/python-3.9%2B%20stdlib-3776ab" alt="Python 3.9 이상, 표준 라이브러리만">
-  <img src="https://img.shields.io/badge/tests-66%20passing-2ea043" alt="테스트 66개 통과">
+  <img src="https://img.shields.io/badge/tests-71%20passing-2ea043" alt="테스트 71개 통과">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT 라이선스">
 </p>
 

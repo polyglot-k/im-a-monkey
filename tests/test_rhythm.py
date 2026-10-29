@@ -16,16 +16,21 @@ class RhythmTest(unittest.TestCase):
         self.assertEqual([f for f in flags(measure(t)) if f.startswith("A15")], [])
 
     def test_formal_register_run_flagged(self):
-        t = ("배포는 매주 화요일에 합니다. 변경이 큰 주에는 하루 전에 리허설 환경에서 먼저 확인합니다. "
-             "문제가 생기면 되돌립니다. 되돌린 뒤에는 원인을 적어 두고 다음 배포 전에 같이 봅니다. "
-             "급한 수정은 따로 올립니다. 이때도 리뷰는 한 명 이상에게 받습니다.")
-        self.assertIn("A15 같은 어미 연속 6회", flags(measure(t)))
+        t = ("배포는 매주 화요일에 나갑니다. 변경이 큰 주에는 하루 전에 리허설 환경에서 먼저 확인했습니다. "
+             "문제가 생기면 바로 되돌렸습니다. 되돌린 뒤에는 원인을 적어 두고 다음 배포 전에 같이 봤습니다. "
+             "급한 수정은 따로 올렸습니다. 이때도 리뷰는 한 명 이상에게 받았습니다.")
+        self.assertIn("A15 같은 어미 연속 5회", flags(measure(t)))
 
     def test_varied_formal_endings_not_flagged(self):
-        t = ("배포는 매주 화요일에 합니다. 변경이 큰 주에는 하루 전에 리허설 환경에서 먼저 확인하죠. "
+        t = ("배포는 매주 화요일에 합니다. 변경이 큰 주에는 하루 전에 리허설 환경에서 먼저 확인했습니다. "
              "문제가 생기면 어떻게 할까요? 되돌린 뒤 원인을 적어 두고 다음 배포 전에 같이 봅니다. "
-             "급한 수정은 예외입니다. 이때도 리뷰는 한 명 이상에게 받아야 하고요.")
+             "급한 수정은 예외입니다. 이때도 리뷰는 한 명 이상에게 받아야 됩니다.")
         self.assertEqual([f for f in flags(measure(t)) if f.startswith("A15")], [])
+
+    def test_formal_share_counts_three_chars(self):
+        t = " ".join(["설정을 바꿨습니다.", "기본값은 열 개입니다.", "로그가 남습니다.", "재시작이 필요합니다.", "캐시는 비웠습니다.",
+                      "다음 단계는 배포입니다.", "검증은 끝났습니까?", "롤백 절차는 그대로입니다.", "담당자는 두 명이 됩니다.", "끝."])
+        self.assertEqual([f for f in flags(measure(t)) if "비율" in f], [])
 
     def test_same_ending_share_flagged(self):
         a, rest = "설정을 바꿔요.", ["값을 읽었죠.", "로그가 남습니다.", "끝났나요?", "다음 단계."]
