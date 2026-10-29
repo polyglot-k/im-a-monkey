@@ -1,0 +1,47 @@
+import sys
+import unittest
+
+sys.path.insert(0, "scripts")
+from lint import lint_text  # noqa: E402
+from patterns import PATTERNS  # noqa: E402
+from textutil import catalog_ids  # noqa: E402
+
+
+class LintTest(unittest.TestCase):
+    def test_detects_translationese(self):
+        ids = {f.id for f in lint_text("이 API를 통해 데이터를 가져오고자 합니다.")}
+        self.assertEqual(ids, {"A01", "A03"})
+
+    def test_ignores_code(self):
+        self.assertEqual(lint_text("`통해` 와\n```\nfoo.py:12 를 통해\n```"), [])
+
+    def test_ignore_region(self):
+        src = "<!-- monkey-lint: off -->\n이를 통해\n<!-- monkey-lint: on -->"
+        self.assertEqual(lint_text(src), [])
+
+    def test_code_map_section_allows_paths(self):
+        src = "본문 a.py:3 참고\n\n## 코드 읽기 지도\n- a.py:3"
+        self.assertEqual([f.line for f in lint_text(src) if f.id == "T03"], [1])
+
+    def test_crlf_line_numbers(self):
+        self.assertEqual(lint_text("첫 줄\r\n이를 통해 간다")[0].line, 2)
+
+    def test_length_limit(self):
+        f = lint_text("말 " * 151, doc_type="message")
+        self.assertEqual([x.id for x in f], ["L01"])
+        self.assertEqual(lint_text("말 " * 150, doc_type="message"), [])
+
+    def test_every_pattern_id_in_catalog(self):
+        self.assertTrue({p[0] for p in PATTERNS} <= catalog_ids("catalog/antipatterns.md"))
+
+    def test_fixtures(self):
+        with open("tests/fixtures/bad_ai.md", encoding="utf-8") as f:
+            bad = f.read()
+        with open("tests/fixtures/good.md", encoding="utf-8") as f:
+            good = f.read()
+        self.assertGreaterEqual(len({f.id for f in lint_text(bad)}), 8)
+        self.assertEqual(lint_text(good), [])
+
+
+if __name__ == "__main__":
+    unittest.main()

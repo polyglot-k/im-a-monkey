@@ -1,0 +1,74 @@
+"""im-a-monkey 린터. 사용: python3 scripts/lint.py FILE [--type TYPE] [--json]"""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from patterns import PATTERNS  # noqa: E402
+from textutil import Finding, eojeol_count, line_col, strip_ignored  # noqa: E402
+
+TYPE_LIMITS = {
+    "decision": 1500, "adr": 400, "report": 800, "explain": 1000,
+    "howto": 600, "reference": 500, "message": 150, "study": None,
+}
+
+_MAP_HEAD = re.compile(r"^(#{1,6})[ \t]+코드 읽기 지도[ \t]*$", re.M)
+_HEAD = re.compile(r"^(#{1,6})[ \t]+\S", re.M)
+
+
+def _map_ranges(s: str) -> list[tuple[int, int]]:
+    out = []
+    for m in _MAP_HEAD.finditer(s):
+        level = len(m.group(1))
+        end = len(s)
+        for h in _HEAD.finditer(s, m.end()):
+            if len(h.group(1)) <= level:
+                end = h.start()
+                break
+        out.append((m.start(), end))
+    return out
+
+
+def lint_text(text: str, doc_type: str | None = None) -> list[Finding]:
+    orig = text.replace("\r\n", "\n")
+    s = strip_ignored(text)
+    skip = _map_ranges(s)
+    found = []
+    for pid, rx, msg in PATTERNS:
+        for m in rx.finditer(s):
+            if pid == "T03" and any(a <= m.start() < b for a, b in skip):
+                continue
+            line, col = line_col(orig, m.start())
+            ex = orig[max(0, m.start() - 10):m.end() + 10].replace("\n", " ")
+            found.append(Finding(pid, line, col, ex, msg))
+    limit = TYPE_LIMITS.get(doc_type) if doc_type else None
+    if limit is not None:
+        n = eojeol_count(s)
+        if n > limit:
+            found.append(Finding("L01", 1, 1, "", f"{n}어절 / 상한 {limit}: 줄이지 말고 나누세요"))
+    return sorted(found, key=lambda f: (f.line, f.col))
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("file")
+    ap.add_argument("--type", choices=sorted(TYPE_LIMITS))
+    ap.add_argument("--json", action="store_true")
+    a = ap.parse_args()
+    with open(a.file, encoding="utf-8", newline="") as f:
+        found = lint_text(f.read(), a.type)
+    if a.json:
+        print(json.dumps([f.__dict__ for f in found], ensure_ascii=False))
+    else:
+        for f in found:
+            print(f)
+    return 1 if found else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
