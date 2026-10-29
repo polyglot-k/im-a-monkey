@@ -1,0 +1,11 @@
+{
+  "name": "im-a-monkey",
+  "owner": {"name": "polyglot-k"},
+  "plugins": [
+    {
+      "name": "im-a-monkey",
+      "source": "./",
+      "description": "한국어 글을 체계적으로, 이해하기 쉽게, AI 티 없이 쓰게 돕는 스킬 시리즈"
+    }
+  ]
+}
