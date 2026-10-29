@@ -26,9 +26,8 @@ def run_claude(prompt: str, plugin_dir: str | None, persona: str = "on") -> str:
     env = dict(os.environ)
     if plugin_dir and persona == "off":
         env["IM_A_MONKEY_VOICE"] = "off"  # 훅이 조용해져서 스킬만 남는다
-    r = subprocess.run(
-        cmd, capture_output=True, text=True, timeout=300, cwd=tempfile.mkdtemp(), env=env
-    )
+    with tempfile.TemporaryDirectory() as cwd:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=300, cwd=cwd, env=env)
     if r.returncode != 0:
         raise RuntimeError(f"claude 실패({r.returncode}): {r.stderr.strip()[:300]}")
     return r.stdout.strip()
@@ -121,7 +120,7 @@ def main() -> int:
         tally[res] += 1
         print(f"{case.name}: {res}")
     print(f"skill {tally['skill']} / baseline {tally['baseline']} / tie {tally['tie']} / error {tally['error']}")
-    return 0
+    return 1 if tally["error"] else 0
 
 
 if __name__ == "__main__":
