@@ -25,5 +25,10 @@ class RhythmTest(unittest.TestCase):
         self.assertAlmostEqual(measure("- a\n- b\n문장이다.\n- c")["bullet_ratio"], 0.75)
 
 
+    def test_html_lines_not_sentences(self):
+        t = "<p>\n  <a href=\"#a\">가</a> ·\n  <a href=\"#b\">나</a> ·\n  <a href=\"#c\">다</a> ·\n  <a href=\"#d\">라</a> ·\n</p>\n본문 문장이에요."
+        self.assertEqual(measure(t)["sentences"], 1)
+
+
 if __name__ == "__main__":
     unittest.main()

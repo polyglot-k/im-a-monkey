@@ -22,7 +22,7 @@ _FORMAL = ("다", "어요", "아요", "해요", "에요", "예요", "세요")
 
 def _lines(text: str) -> list[str]:
     return [ln for ln in strip_ignored(text).split("\n")
-            if ln.strip() and not ln.lstrip().startswith(("#", "|"))]
+            if ln.strip() and not ln.lstrip().startswith(("#", "|", "<"))]
 
 
 def split_sentences(text: str) -> list[str]:

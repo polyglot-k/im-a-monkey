@@ -1,1 +1,22 @@
-{"name":"im-a-monkey","version":"0.1.0","description":"한국어 글을 체계적으로, 이해하기 쉽게, AI 티 없이 쓰게 돕는 스킬 시리즈","author":{"name":"polyglot-k"}}
+{
+  "name": "im-a-monkey",
+  "version": "0.1.0",
+  "description": "Claude가 원숭이도 끝까지 읽는 한국어를 쓰게 만드는 플러그인. AI 티·번역투 제거, 쉬운 설명, 목적별 문서 구조, 그림 캡션까지.",
+  "author": {
+    "name": "polyglot-k"
+  },
+  "keywords": [
+    "korean",
+    "korean-writing",
+    "technical-writing",
+    "readability",
+    "humanize",
+    "ai-writing",
+    "translationese",
+    "documentation",
+    "claude-code",
+    "claude-code-plugin"
+  ],
+  "homepage": "https://github.com/polyglot-k/im-a-monkey",
+  "license": "MIT"
+}
