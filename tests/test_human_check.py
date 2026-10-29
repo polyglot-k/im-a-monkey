@@ -18,6 +18,13 @@ class HumanCheckTest(unittest.TestCase):
         self.assertEqual(out["after"]["lint_count"], 0)
         self.assertTrue(out["preserve"]["ok"])
 
+    def test_compare_flags_register_mixing(self):
+        orig = "검색이 빨라졌습니다. 필터도 쉬워졌습니다. 정렬 옵션도 들어갔습니다."
+        rev = "검색이 빨라졌습니다. 필터도 쉬워졌죠. 정렬 옵션도 들어갔고요."
+        self.assertEqual(run("compare", f"{orig}\n{SEP}\n{rev}")["register_mixed"], ["해요체 2문장"])
+        same = "검색이 빨라졌습니다. 필터와 정렬 옵션도 들어갔습니다."
+        self.assertEqual(run("compare", f"{orig}\n{SEP}\n{same}")["register_mixed"], [])
+
     def test_compare_without_separator_fails(self):
         r = subprocess.run([sys.executable, "scripts/human_check.py", "compare"],
                            input="원문만", capture_output=True, text=True)
