@@ -13,8 +13,10 @@ from textutil import Finding, _OFF_ON, line_col, strip_ignored  # noqa: E402
 
 _MARKER = re.compile(r"<!--\s*visual:(.*?)-->", re.S)
 _FIG_FENCE = re.compile(r"^[ \t]*(```|~~~)[ \t]*(?:mermaid|svg)\b.*?(?:^[ \t]*\1[^\n]*$|\Z)", re.S | re.M)
-_FIG_INLINE = re.compile(r"<svg\b.*?(?:</svg>|>)|!\[[^\]]*\]\([^)]*\)", re.S)
-_CAPTION = re.compile(r"^\*?\s*그림 \d+\.\s*(.*)$")
+# 자기 닫는 svg → 닫는 태그까지 전체 → 닫히지 않았으면 여는 태그만 순서로 맞춘다.
+_FIG_INLINE = re.compile(r"<svg\b[^>]*/>|<svg\b.*?</svg>|<svg\b[^>]*>|!\[[^\]]*\]\([^)]*\)", re.S)
+_CAPTION = re.compile(r"^(?:<(?:p|figcaption)\b[^>]*>\s*)?\*?\s*그림 \d+\.\s*(.*)$")
+_CLOSE_TAGS = re.compile(r"(?:\s*</(?:p|figcaption|figure)>)+\s*$")
 _FIRST_SENT = re.compile(r"^.*?[.?!]\*?(?=\s|$)")
 _HEAD = re.compile(r"^#{1,6}[ \t]+\S.*$", re.M)
 _CALLOUT = re.compile(r"^[ \t]*> \[!", re.M)
@@ -22,16 +24,14 @@ _BADGE = re.compile(r"\[(?:측정|추정|미확인)\]")
 
 
 def _caption_ok(orig: str, end: int) -> bool:
-    nl = orig.find("\n", end)
-    if nl < 0:
-        return False
-    for ln in orig[nl + 1:].split("\n"):
+    # 그림이 끝난 줄의 나머지부터 본다: <figure> 안에서 </svg> 뒤에 바로 <figcaption>이 오는 경우.
+    for ln in orig[end:].split("\n"):
         if not ln.strip():
             continue
         m = _CAPTION.match(ln.strip())
         if not m:
             return False
-        rest = m.group(1).rstrip("*").strip()
+        rest = _CLOSE_TAGS.sub("", m.group(1)).rstrip("*").strip()
         s = _FIRST_SENT.match(rest)
         return (s.group(0) if s else rest).rstrip("*").endswith("?")
     return False

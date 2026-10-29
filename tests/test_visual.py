@@ -13,6 +13,14 @@ class VisualTest(unittest.TestCase):
         self.assertEqual([f.id for f in check("```mermaid\ngraph TD\n```\n그림 1. 흐름이다.")], ["V02"])
         self.assertEqual(check("```mermaid\ngraph TD\n```\n그림 1. 요청은 어디서 갈리나? 결제 전이다."), [])
 
+    def test_html_svg_captions(self):
+        q = "그림 1. 요청은 어디서 갈리나? 결제 전이다."
+        self.assertEqual(check('<svg viewBox="0 0 10 10"><rect/></svg>\n<p>' + q + "</p>"), [])
+        self.assertEqual(check('<figure><svg viewBox="0 0 1 1"/><figcaption class="c">' + q
+                               + "</figcaption></figure>"), [])
+        self.assertEqual(check("<svg>\n  <g>\n    <rect/>\n  </g>\n</svg>\n" + q), [])
+        self.assertEqual([f.id for f in check("<svg><rect/></svg>\n<p>그림 1. 흐름이다.</p>")], ["V02"])
+
     def test_compare_needs_emphasis(self):
         self.assertIn("V03", {f.id for f in check("<!-- visual: compare | Q: 무엇이 다른가? -->")})
 
