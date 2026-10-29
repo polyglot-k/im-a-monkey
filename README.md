@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/Claude_Code-plugin-d97757" alt="Claude Code plugin">
   <img src="https://img.shields.io/badge/한국어-first-ffd23f" alt="한국어 우선">
   <img src="https://img.shields.io/badge/python-3.9%2B%20stdlib-3776ab" alt="Python 3.9 이상, 표준 라이브러리만">
-  <img src="https://img.shields.io/badge/tests-60%20passing-2ea043" alt="테스트 60개 통과">
+  <img src="https://img.shields.io/badge/tests-61%20passing-2ea043" alt="테스트 61개 통과">
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT 라이선스">
 </p>
 
@@ -108,7 +108,7 @@ flowchart LR
 - **세는 건 스크립트가 세요.** 번역투 표지, 분량, 본문 속 파일 경로, 캡션 없는 그림은 정규식과 규칙으로 찾아요. 모델은 판단이 필요한 곳에만 써요.
 - **없는 내용을 지어 넣지 않아요.** 윤문한 뒤에는 숫자, 고유명사, 부정어, 링크가 원문과 같은지 스크립트로 대조해요. 문서에 빈칸이 있으면 `<채울 값>`으로 남기고 물어봐요.
 - **쓸수록 내 규칙이 쌓여요.** "이게 무슨 말이야", "다음엔 이러지 마"라고 하면 그 지적이 내 로컬 규칙으로 남아요.
-- **목적마다 모양이 달라요.** 결정 요청, ADR, 장애 보고, 런북, 레퍼런스, 메시지, 교보재마다 길이, 자세함, 각주와 표를 쓸지까지 따로 정해 뒀어요. 맞는 유형이 없으면 새 구조를 조립해요.
+- **목적마다 모양이 달라요.** 결정 요청, ADR, 장애 보고, 런북, 레퍼런스, 메시지, PR 설명, 교보재마다 길이, 자세함, 각주와 표를 쓸지까지 따로 정해 뒀어요. 맞는 유형이 없으면 새 구조를 조립해요.
 
 ## 스킬 7개
 

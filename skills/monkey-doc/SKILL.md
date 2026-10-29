@@ -1,6 +1,6 @@
 ---
 name: monkey-doc
-description: 사람이 읽을 문서 요청. "문서로 써줘", "문서로 정리", "위키에 정리", "공유할 문서로", "팀에 공유할 문서", "위키에 올릴 문서", "스펙 초안", "RFC", "ADR", "런북", "장애 보고서", "레퍼런스 문서", "긴 PR 설명", "교보재", "공유 페이지", "문서 구조를 다시 잡아", "문서를 새로 짜" 같은 요청. 구조는 두고 문장·말투만 다듬는 요청은 monkey-human이 맡는다. 채팅으로 개념을 풀어 주는 설명은 monkey-clear가 맡는다.
+description: 사람이 읽을 문서 요청. "문서로 써줘", "문서로 정리", "위키에 정리", "공유할 문서로", "팀에 공유할 문서", "위키에 올릴 문서", "스펙 초안", "RFC", "ADR", "런북", "장애 보고서", "레퍼런스 문서", "PR 설명", "PR 본문", "교보재", "공유 페이지", "문서 구조를 다시 잡아", "문서를 새로 짜" 같은 요청. 구조는 두고 문장·말투만 다듬는 요청은 monkey-human이 맡는다. 채팅으로 개념을 풀어 주는 설명은 monkey-clear가 맡는다.
 ---
 
 # monkey-doc
@@ -19,7 +19,7 @@ description: 사람이 읽을 문서 요청. "문서로 써줘", "문서로 정�
 
 - `<base>/intent.md`: 의도 다섯 칸, 물을 때와 묻지 않을 때, 행동 → 유형 표.
 - `<base>/blocks.md`: 블록 12개와 요소(각주, 접는 상세 등)의 쓰는 규칙.
-- `<base>/types/*.md`: 기본 유형 8개의 프로필. decision · adr · report · explain · howto · reference · message · study.
+- `<base>/types/*.md`: 기본 유형 9개의 프로필. decision · adr · report · explain · howto · reference · message · pr · study.
 - 사용자가 저장한 유형이 `$XDG_CONFIG_HOME/im-a-monkey/overlay/types/*.md`(없으면 `~/.config/im-a-monkey/overlay/types/*.md`)에 있을 수 있어요. 있으면 읽고 기본 유형과 함께 후보에 올려요.
 
 ## 절차
@@ -90,7 +90,7 @@ python3 <base>/../../scripts/visual.py FILE               # 남은 마커·캡�
 python3 <base>/../../scripts/coderef.py FILE --repo .     # 코드 읽기 지도가 있을 때만
 ```
 
-- `--type`은 기본 유형 8개만 받아요. 새 구조나 오버레이 유형이면 `--type` 없이 돌리고, 길이감은 어절 수를 세어 직접 비교해요.
+- `--type`은 기본 유형 9개만 받아요. 새 구조나 오버레이 유형이면 `--type` 없이 돌리고, 길이감은 어절 수를 세어 직접 비교해요.
 - L01은 나누라는 신호, L02는 빠진 맥락을 보라는 신호예요. L02는 다 확인했는데 짧으면 그대로 둬도 돼요.
 - Python이 없거나 스크립트가 실패하면 멈추지 말고 스크립트 없이 체크리스트로 확인해요. "마지막으로 지킬 규칙"을 눈으로 하나씩 확인하고, 그렇게 했다고 보고에 적어요.
 

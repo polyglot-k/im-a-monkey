@@ -14,11 +14,11 @@ from textutil import Finding, eojeol_count, line_col, run_files, strip_ignored  
 
 TYPE_LIMITS = {
     "decision": 1500, "adr": 400, "report": 800, "explain": 1000,
-    "howto": 600, "reference": 500, "message": 150, "study": None,
+    "howto": 600, "reference": 500, "message": 150, "pr": 600, "study": None,
 }
 TYPE_MINIMUMS = {
     "decision": 300, "adr": 150, "report": 200, "explain": 200,
-    "howto": 100, "reference": 80, "message": None, "study": 400,
+    "howto": 100, "reference": 80, "message": None, "pr": 80, "study": 400,
 }
 
 _MAP_HEAD = re.compile(r"^(#{1,6})[ \t]+코드 읽기 지도[ \t]*$", re.M)

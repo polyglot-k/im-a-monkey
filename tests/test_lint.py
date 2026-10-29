@@ -26,6 +26,10 @@ class LintTest(unittest.TestCase):
     def test_crlf_line_numbers(self):
         self.assertEqual(lint_text("첫 줄\r\n이를 통해 간다")[0].line, 2)
 
+    def test_pr_type_has_floor(self):
+        self.assertEqual([f.id for f in lint_text("말 " * 79, doc_type="pr")], ["L02"])
+        self.assertEqual(lint_text("말 " * 80, doc_type="pr"), [])
+
     def test_length_limit(self):
         f = lint_text("말 " * 151, doc_type="message")
         self.assertEqual([x.id for x in f], ["L01"])
