@@ -37,6 +37,10 @@ class LintTest(unittest.TestCase):
         self.assertEqual(lint_text("말 " * 100, doc_type="howto"), [])
         self.assertEqual(lint_text("말 " * 5), [])
 
+    def test_emoji_excludes_technical_symbols(self):
+        self.assertEqual([f for f in lint_text("✓ 완료 ✗ 실패 ★ ⚠") if f.id == "A09"], [])
+        self.assertEqual([f.id for f in lint_text("🚀 배포")], ["A09"])
+
     def test_every_pattern_id_in_catalog(self):
         self.assertTrue({p[0] for p in PATTERNS} <= catalog_ids("catalog/antipatterns.md"))
 
