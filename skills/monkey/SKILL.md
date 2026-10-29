@@ -1,6 +1,6 @@
 ---
 name: monkey
-description: im-a-monkey 시리즈의 입구. "monkey", "im-a-monkey", "어떤 monkey 스킬", "어느 스킬을 써야"처럼 시리즈를 부르거나 어떤 스킬이 맞는지 물을 때 쓴다.
+description: im-a-monkey 시리즈의 입구. "monkey", "im-a-monkey", "어떤 monkey 스킬", "어느 monkey 스킬을 써야"처럼 시리즈를 부르거나 어떤 스킬이 맞는지 물을 때 쓴다.
 ---
 
 # monkey
@@ -9,11 +9,11 @@ im-a-monkey는 한국어 글을 "원숭이도 알아듣게", 그리고 "AI가 �
 
 | 상황 | 스킬 |
 |---|---|
-| 글에서 AI 티나 번역투를 찾거나 고치고 싶어요 | monkey-human |
+| 글에서 AI 티나 번역투를 찾거나, 구조는 두고 문장·말투만 다듬고 싶어요 | monkey-human |
 | 개념이나 코드, 장애 원인을 사람이 알아듣게 풀고 싶어요 | monkey-clear |
 | 대화 말투를 바꾸거나 페르소나를 끄고 켜고 싶어요 | monkey-voice |
 | 흐름이나 구조를 그림, 도식, 표로 보여 주고 싶어요 | monkey-visual |
-| 공유할 문서(스펙, 런북, 보고서 등)를 쓰거나 고치고 싶어요 | monkey-doc |
+| 공유할 문서(스펙, 런북, 보고서 등)를 쓰거나 구조를 다시 잡고 싶어요 | monkey-doc |
 | 글에 받은 지적을 규칙으로 남기고 싶어요 | monkey-learn |
 | 세션 시작 안내와 말투 규칙이 어디서 오는지 알고 싶어요 | hooks와 persona (스킬이 아니라 자동 적용돼요) |
 

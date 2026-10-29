@@ -21,7 +21,7 @@
 | 개념이나 코드, 장애 원인을 쉽게 풀어요 | monkey-clear |
 | 말투를 바꾸거나 페르소나를 꺼요 | monkey-voice |
 | 흐름이나 구조를 그림과 표로 보여 줘요 | monkey-visual |
-| 공유할 문서를 쓰거나 고쳐요 | monkey-doc |
+| 공유할 문서를 쓰거나 구조를 다시 잡아요 | monkey-doc |
 | 받은 지적을 규칙으로 남겨요 | monkey-learn |
 | 입구, 어떤 스킬을 쓸지 안내해요 | monkey |
 
