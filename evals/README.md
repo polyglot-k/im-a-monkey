@@ -15,7 +15,10 @@
 python3 evals/judge.py <스킬>
 python3 evals/judge.py <스킬> --case <사례>
 python3 evals/judge.py <스킬> --repeat 3
+python3 evals/judge.py <스킬> --persona off --repeat 3
 ```
+
+`--persona off`는 스킬 쪽 실행에만 `IM_A_MONKEY_VOICE=off`를 줘서 SessionStart·UserPromptSubmit 훅을 조용하게 만들어요(`hooks/config.py`가 이 환경변수를 읽어요). 스킬 쪽에도 상시 페르소나가 붙어 있어서 기본 비교는 "기준선 대 스킬+페르소나"인데, 이 옵션을 켜면 "기준선 대 페르소나 없는 스킬"이 돼서 스킬이 더한 몫만 볼 수 있어요. 기준선과 판정자는 플러그인이 없어서 영향이 없어요. 어떤 설정으로 돌렸는지는 `verdict.json`의 `persona`(`on`/`off`)에 남아요.
 
 `--repeat N`(기본 1)은 사례마다 기준선·스킬 답을 한 번만 만들고, 순서를 바꾼 판정만 N번 돌려요. 사례 결과는 N번의 최종 판정 중 다수결이고, 동률이면 `tie`예요. 판정 한 번은 결과가 자주 뒤집혀요. 결과를 믿기 전에 `--repeat 3`으로 돌리는 걸 권해요. 답 생성 자체의 흔들림은 이 옵션으로 줄지 않아요.
 

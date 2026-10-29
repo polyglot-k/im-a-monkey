@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -15,15 +16,18 @@ BEHAVIOR = ROOT / "evals" / "behavior"
 RUNS = ROOT / "evals" / "runs"
 
 
-def run_claude(prompt: str, plugin_dir: str | None) -> str:
+def run_claude(prompt: str, plugin_dir: str | None, persona: str = "on") -> str:
     # 두 팔 모두 빈 임시 폴더에서, 프로젝트 설정만 읽고 MCP 없이 돌린다. 차이는 플러그인뿐이다.
     # 도구 권한은 두 팔에 똑같이 준다. headless에선 허용하지 않으면 스크립트 실행·참조 읽기가 막힌다.
     cmd = ["claude", "-p", prompt, "--setting-sources", "project", "--strict-mcp-config"]
     cmd += ["--allowedTools", "Read,Write,Edit,Bash(python3:*)"]
     if plugin_dir:
         cmd += ["--plugin-dir", plugin_dir, "--add-dir", plugin_dir]
+    env = dict(os.environ)
+    if plugin_dir and persona == "off":
+        env["IM_A_MONKEY_VOICE"] = "off"  # 훅이 조용해져서 스킬만 남는다
     r = subprocess.run(
-        cmd, capture_output=True, text=True, timeout=300, cwd=tempfile.mkdtemp()
+        cmd, capture_output=True, text=True, timeout=300, cwd=tempfile.mkdtemp(), env=env
     )
     if r.returncode != 0:
         raise RuntimeError(f"claude 실패({r.returncode}): {r.stderr.strip()[:300]}")
@@ -61,11 +65,11 @@ def majority(verdicts: list[str]) -> str:
     return winners.pop() if len(winners) == 1 else "tie"
 
 
-def run_case(case: Path, out: Path, repeat: int = 1) -> str:
+def run_case(case: Path, out: Path, repeat: int = 1, persona: str = "on") -> str:
     prompt = (case / "prompt.md").read_text(encoding="utf-8")
     rubric = (case / "rubric.md").read_text(encoding="utf-8")
     base = run_claude(prompt, None)
-    skill = run_claude(prompt, str(ROOT))
+    skill = run_claude(prompt, str(ROOT), persona)
     rounds = []
     for _ in range(repeat):
         v_ab = parse_verdict(run_claude(judge_prompt(rubric, base, skill), None))
@@ -76,7 +80,7 @@ def run_case(case: Path, out: Path, repeat: int = 1) -> str:
     (out / "baseline.md").write_text(base, encoding="utf-8")
     (out / "skill.md").write_text(skill, encoding="utf-8")
     (out / "verdict.json").write_text(
-        json.dumps({"rounds": rounds, "final": result}, ensure_ascii=False),
+        json.dumps({"persona": persona, "rounds": rounds, "final": result}, ensure_ascii=False),
         encoding="utf-8",
     )
     return result
@@ -86,6 +90,10 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("skill")
     ap.add_argument("--case")
+    ap.add_argument(
+        "--persona", choices=("on", "off"), default="on",
+        help="off: 스킬 쪽에 IM_A_MONKEY_VOICE=off를 줘서 상시 페르소나 훅을 끈다",
+    )
     ap.add_argument("--repeat", type=int, default=1, help="판정 반복 횟수(다수결)")
     args = ap.parse_args()
     if args.repeat < 1:
@@ -105,7 +113,7 @@ def main() -> int:
     tally = {"skill": 0, "baseline": 0, "tie": 0, "error": 0}
     for case in cases:
         try:
-            res = run_case(case, RUNS / stamp / args.skill / case.name, args.repeat)
+            res = run_case(case, RUNS / stamp / args.skill / case.name, args.repeat, args.persona)
         except (RuntimeError, subprocess.TimeoutExpired, OSError) as e:
             tally["error"] += 1
             print(f"ERROR {case.name}: {e}")
