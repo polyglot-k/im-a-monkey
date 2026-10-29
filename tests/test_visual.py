@@ -21,6 +21,10 @@ class VisualTest(unittest.TestCase):
         self.assertEqual(check("<svg>\n  <g>\n    <rect/>\n  </g>\n</svg>\n" + q), [])
         self.assertEqual([f.id for f in check("<svg><rect/></svg>\n<p>그림 1. 흐름이다.</p>")], ["V02"])
 
+    def test_mermaid_inside_outer_fence_is_not_a_figure(self):
+        src = "````md\n```mermaid\nflowchart LR\n```\n````\n"
+        self.assertEqual([f.id for f in check(src)], [])
+
     def test_compare_needs_emphasis(self):
         self.assertIn("V03", {f.id for f in check("<!-- visual: compare | Q: 무엇이 다른가? -->")})
 

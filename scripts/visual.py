@@ -9,10 +9,10 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from textutil import Finding, _OFF_ON, line_col, strip_ignored  # noqa: E402
+from textutil import Finding, _OFF_ON, fence_spans, line_col, strip_ignored  # noqa: E402
 
 _MARKER = re.compile(r"<!--\s*visual:(.*?)-->", re.S)
-_FIG_FENCE = re.compile(r"^[ \t]*(```|~~~)[ \t]*(?:mermaid|svg)\b.*?(?:^[ \t]*\1[^\n]*$|\Z)", re.S | re.M)
+_FIG_INFO = re.compile(r"(?:mermaid|svg)\b")
 # 자기 닫는 svg → 닫는 태그까지 전체 → 닫히지 않았으면 여는 태그만 순서로 맞춘다.
 _FIG_INLINE = re.compile(r"<svg\b[^>]*/>|<svg\b.*?</svg>|<svg\b[^>]*>|!\[[^\]]*\]\([^)]*\)", re.S)
 _CAPTION = re.compile(r"^(?:<(?:p|figcaption)\b[^>]*>\s*)?\*?\s*그림 \d+\.\s*(.*)$")
@@ -54,8 +54,8 @@ def check(text: str) -> list[Finding]:
         if kind == "compare" and "강조:" not in m.group(1):
             add("V03", m.start(), "compare 마커에 강조가 없다")
 
-    figs = [(m.start(), m.end()) for m in _FIG_FENCE.finditer(orig)
-            if not any(a <= m.start() < b for a, b in off)]
+    figs = [(a, b) for a, b, info in fence_spans(orig)
+            if _FIG_INFO.match(info) and not any(x <= a < y for x, y in off)]
     figs += [(m.start(), m.end()) for m in _FIG_INLINE.finditer(s)]
     for start, end in figs:
         if not _caption_ok(orig, end):

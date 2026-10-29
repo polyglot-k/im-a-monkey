@@ -20,6 +20,19 @@ class TextutilTest(unittest.TestCase):
     def test_strip_keeps_visual_marker(self):
         self.assertIn("<!-- visual:", strip_ignored("<!-- visual: flow | Q: 어디서 갈리나? -->"))
 
+    def test_outer_four_backtick_fence_not_closed_by_three(self):
+        src = "````md\n```\n통해\n```\n통해\n````\n끝 통해"
+        out = strip_ignored(src)
+        self.assertEqual(out.count("통해"), 1)
+        self.assertIn("끝 통해", out)
+
+    def test_closing_fence_with_text_does_not_close(self):
+        src = "```\n통해\n``` 설명\n통해\n```\n끝"
+        self.assertNotIn("통해", strip_ignored(src))
+
+    def test_inline_code_with_comment_open_keeps_following_text(self):
+        self.assertIn("통해", strip_ignored("`<!--` 이를 통해 설명"))
+
     def test_line_col(self):
         self.assertEqual(line_col("ab\ncd", 3), (2, 1))
 
