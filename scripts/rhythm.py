@@ -17,15 +17,16 @@ _BULLET = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s")
 _SPLIT = re.compile(r"(?<=[.?!])\s+")
 _BOLD = re.compile(r"\*\*[^*\n]+\*\*")
 _TAIL = re.compile(r"[.?!\s]+$")
-_HTML_DROP = re.compile(r"<(style|script|svg)\b.*?</\1>|<!--.*?-->", re.S | re.I)
+_HTML_DROP = re.compile(r"<(style|script|svg|table|h[1-6])\b.*?</\1>|<!--.*?-->", re.S | re.I)
 _HTML_BLOCK = re.compile(r"</?(p|div|li|h[1-6]|tr|td|th|br|section|header|footer|table|ul|ol|figcaption|blockquote)\b[^>]*>", re.I)
 _HTML_TAG = re.compile(r"<[^>]+>")
 
 
 def _html_text(text: str) -> str:
     # ponytail: 정규식으로 태그만 벗긴다. 본문 문장 리듬만 재면 돼서 파서는 두지 않는다.
-    text = _HTML_BLOCK.sub("\n", _HTML_DROP.sub("", text))
-    return html.unescape(_HTML_TAG.sub("", text))
+    # 마크다운처럼 표·제목은 빼고, 문장 부호로 끝나지 않는 조각(그림 라벨 등)도 뺀다.
+    text = html.unescape(_HTML_TAG.sub("", _HTML_BLOCK.sub("\n", _HTML_DROP.sub("", text))))
+    return "\n".join(ln for ln in text.split("\n") if re.search(r"[.?!]\s*$", ln))
 
 
 def _lines(text: str) -> list[str]:
