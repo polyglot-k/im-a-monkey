@@ -1,6 +1,9 @@
 {
   "name": "im-a-monkey",
-  "owner": {"name": "polyglot-k"},
+  "description": "한국어 글을 원숭이도 알아듣게, AI 티 없이 쓰게 돕는 스킬 시리즈",
+  "owner": {
+    "name": "polyglot-k"
+  },
   "plugins": [
     {
       "name": "im-a-monkey",

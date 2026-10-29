@@ -31,3 +31,19 @@ python3 evals/judge.py <스킬> --case <사례>
 ## 사람 교정
 
 판정자도 틀릴 수 있어요. 처음 20건은 사람이 두 답과 verdict를 직접 읽고, 판정에 동의하는지를 `calibration.md`에 적어요. 일치율이 낮으면 rubric을 먼저 고쳐요.
+
+## 설치 검증
+
+깨끗한 임시 `XDG_CONFIG_HOME`에서 `claude -p --plugin-dir <저장소>`로 문구마다 한 번씩 돌렸어요. 각 요청 뒤에 "실제 작업은 하지 말고 스킬만 정해서 호출하고, 마지막 줄에 사용한 스킬 이름만 적어 줘"를 붙였어요. 요청 하나에 표본은 한 번이라 우연히 맞았을 수도 있어요.
+
+| 요청 | 기대 | 실제 | 일치 |
+|---|---|---|---|
+| 이 내용 문서로 써줘: (짧은 내용) | monkey-doc | monkey-doc | 예 |
+| 이 글 AI 티 없애줘: (짧은 글) | monkey-human | monkey-human | 예 |
+| 이 흐름 그림으로 그려줘: (짧은 흐름) | monkey-visual | monkey-visual | 예 |
+| 캐시 무효화 쉽게 설명해줘 | monkey-clear | monkey-clear | 예 |
+| 반말로 해줘 | monkey-voice | monkey-voice | 예 |
+| 다음엔 이러지 마, 규칙으로 남겨 | monkey-learn | monkey-learn | 예 |
+| monkey 스킬 뭐 써야 해? | monkey | monkey | 예 |
+
+7개 중 7개가 일치했어요.
