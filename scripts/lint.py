@@ -16,6 +16,10 @@ TYPE_LIMITS = {
     "decision": 1500, "adr": 400, "report": 800, "explain": 1000,
     "howto": 600, "reference": 500, "message": 150, "study": None,
 }
+TYPE_MINIMUMS = {
+    "decision": 300, "adr": 150, "report": 200, "explain": 200,
+    "howto": 100, "reference": 80, "message": None, "study": 400,
+}
 
 _MAP_HEAD = re.compile(r"^(#{1,6})[ \t]+코드 읽기 지도[ \t]*$", re.M)
 _HEAD = re.compile(r"^(#{1,6})[ \t]+\S", re.M)
@@ -46,11 +50,13 @@ def lint_text(text: str, doc_type: str | None = None) -> list[Finding]:
             line, col = line_col(orig, m.start())
             ex = orig[max(0, m.start() - 10):m.end() + 10].replace("\n", " ")
             found.append(Finding(pid, line, col, ex, msg))
-    limit = TYPE_LIMITS.get(doc_type) if doc_type else None
-    if limit is not None:
+    if doc_type:
         n = eojeol_count(s)
-        if n > limit:
+        limit, low = TYPE_LIMITS.get(doc_type), TYPE_MINIMUMS.get(doc_type)
+        if limit is not None and n > limit:
             found.append(Finding("L01", 1, 1, "", f"{n}어절 / 상한 {limit}: 줄이지 말고 나누세요"))
+        if low is not None and n < low:
+            found.append(Finding("L02", 1, 1, "", f"{n}어절 / 하한 {low}: 빠진 맥락이 없는지 보세요"))
     return sorted(found, key=lambda f: (f.line, f.col))
 
 

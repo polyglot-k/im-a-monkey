@@ -31,6 +31,12 @@ class LintTest(unittest.TestCase):
         self.assertEqual([x.id for x in f], ["L01"])
         self.assertEqual(lint_text("말 " * 150, doc_type="message"), [])
 
+    def test_length_minimum(self):
+        f = lint_text("말 " * 99, doc_type="howto")
+        self.assertEqual([x.id for x in f], ["L02"])
+        self.assertEqual(lint_text("말 " * 100, doc_type="howto"), [])
+        self.assertEqual(lint_text("말 " * 5), [])
+
     def test_every_pattern_id_in_catalog(self):
         self.assertTrue({p[0] for p in PATTERNS} <= catalog_ids("catalog/antipatterns.md"))
 
