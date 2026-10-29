@@ -1,4 +1,4 @@
-"""im-a-monkey 린터. 사용: python3 scripts/lint.py FILE [--type TYPE] [--json]"""
+"""im-a-monkey 린터. 사용: python3 scripts/lint.py FILE... [--type TYPE] [--json]"""
 from __future__ import annotations
 
 import argparse
@@ -10,7 +10,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from patterns import PATTERNS  # noqa: E402
-from textutil import Finding, eojeol_count, line_col, strip_ignored  # noqa: E402
+from textutil import Finding, eojeol_count, line_col, run_files, strip_ignored  # noqa: E402
 
 TYPE_LIMITS = {
     "decision": 1500, "adr": 400, "report": 800, "explain": 1000,
@@ -62,18 +62,11 @@ def lint_text(text: str, doc_type: str | None = None) -> list[Finding]:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("file")
+    ap.add_argument("files", nargs="+", metavar="FILE", help="파일 또는 폴더(*.md 재귀)")
     ap.add_argument("--type", choices=sorted(TYPE_LIMITS))
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
-    with open(a.file, encoding="utf-8", newline="") as f:
-        found = lint_text(f.read(), a.type)
-    if a.json:
-        print(json.dumps([f.__dict__ for f in found], ensure_ascii=False))
-    else:
-        for f in found:
-            print(f)
-    return 1 if found else 0
+    return run_files(a.files, lambda t: lint_text(t, a.type), a.json)
 
 
 if __name__ == "__main__":

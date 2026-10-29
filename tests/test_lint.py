@@ -52,6 +52,19 @@ class LintTest(unittest.TestCase):
         self.assertGreaterEqual(len({f.id for f in lint_text(bad)}), 8)
         self.assertEqual(lint_text(good), [])
 
+    def test_multiple_files_and_dirs_prefix_path(self):
+        import os, subprocess, tempfile
+        with tempfile.TemporaryDirectory() as d:
+            os.makedirs(os.path.join(d, "sub"))
+            for n, body in (("ok.md", "깨끗한 문장이에요.\n"), ("sub/bad.md", "이를 통해 해결했다.\n")):
+                with open(os.path.join(d, n), "w", encoding="utf-8") as f:
+                    f.write(body)
+            r = subprocess.run(["python3", "scripts/lint.py", d], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 1)
+            self.assertTrue(r.stdout.startswith(os.path.join(d, "sub", "bad.md") + ":"), r.stdout)
+            r = subprocess.run(["python3", "scripts/lint.py", os.path.join(d, "ok.md")], capture_output=True, text=True)
+            self.assertEqual((r.returncode, r.stdout), (0, ""))
+
 
 if __name__ == "__main__":
     unittest.main()

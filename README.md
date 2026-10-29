@@ -107,7 +107,11 @@ python3 hooks/config.py path
 | `visual.py` | 그림과 표 쓰임을 점검해요 | `python3 scripts/visual.py doc.md` |
 | `coderef.py` | 글에 적은 코드 경로가 저장소에 있는지 확인해요 | `python3 scripts/coderef.py doc.md --repo .` |
 
-`--json`을 붙이면 결과를 JSON으로 받아요.
+`--json`을 붙이면 결과를 JSON으로 받아요. `lint.py`와 `visual.py`는 파일을 여럿 받고, 폴더를 주면 안의 `*.md`를 모두 봐요. 파일이 둘 이상이면 줄 앞에 경로가 붙어요. 이 저장소를 한 번에 점검하는 예예요.
+
+```bash
+python3 scripts/lint.py skills persona catalog README.md && python3 scripts/visual.py skills persona catalog README.md
+```
 
 ## 평가
 

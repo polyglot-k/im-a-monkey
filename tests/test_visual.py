@@ -32,6 +32,19 @@ class VisualTest(unittest.TestCase):
         src = "## A\n> [!NOTE]\n> x\n[추정] 3건 [측정] 5건\n## B\n[측정] 1건"
         self.assertEqual([f.id for f in check(src)], ["V04"])
 
+    def test_multiple_files_and_dirs_prefix_path(self):
+        import os, subprocess, tempfile
+        with tempfile.TemporaryDirectory() as d:
+            os.makedirs(os.path.join(d, "sub"))
+            for n, body in (("ok.md", "깨끗한 문장이에요.\n"), ("sub/bad.md", "<!-- visual: flow | Q: 어디서? -->\n")):
+                with open(os.path.join(d, n), "w", encoding="utf-8") as f:
+                    f.write(body)
+            r = subprocess.run(["python3", "scripts/visual.py", d], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 1)
+            self.assertTrue(r.stdout.startswith(os.path.join(d, "sub", "bad.md") + ":"), r.stdout)
+            r = subprocess.run(["python3", "scripts/visual.py", os.path.join(d, "ok.md")], capture_output=True, text=True)
+            self.assertEqual((r.returncode, r.stdout), (0, ""))
+
 
 if __name__ == "__main__":
     unittest.main()

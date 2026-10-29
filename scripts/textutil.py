@@ -1,6 +1,8 @@
 """im-a-monkey 공통 텍스트 유틸. 표준 라이브러리만 쓴다."""
 from __future__ import annotations
 
+import json
+import os
 import re
 from dataclasses import dataclass
 
@@ -78,3 +80,31 @@ def eojeol_count(text: str) -> int:
 def catalog_ids(path: str) -> set[str]:
     with open(path, encoding="utf-8") as f:
         return set(re.findall(r"^### ([A-Z]\d{2}) ", f.read(), re.M))
+
+
+def md_files(paths: list[str]) -> list[str]:
+    """파일은 그대로, 폴더는 안의 *.md를 재귀로 모은다."""
+    out = []
+    for p in paths:
+        if os.path.isdir(p):
+            for root, _, names in sorted(os.walk(p)):
+                out += [os.path.join(root, n) for n in sorted(names) if n.endswith(".md")]
+        else:
+            out.append(p)
+    return out
+
+
+def run_files(paths: list[str], check, as_json: bool) -> int:
+    """파일마다 check(text)를 돌려 출력한다. 파일이 둘 이상이면 경로를 앞에 붙인다. 하나라도 나오면 1."""
+    files = md_files(paths)
+    multi = len(files) > 1 or any(os.path.isdir(p) for p in paths)
+    rows = []
+    for fp in files:
+        with open(fp, encoding="utf-8", newline="") as f:
+            rows += [(fp, x) for x in check(f.read())]
+    if as_json:
+        print(json.dumps([{**x.__dict__, **({"file": fp} if multi else {})} for fp, x in rows], ensure_ascii=False))
+    else:
+        for fp, x in rows:
+            print(f"{fp}:{x}" if multi else x)
+    return 1 if rows else 0

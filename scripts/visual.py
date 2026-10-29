@@ -1,4 +1,4 @@
-"""im-a-monkey 시각 요소 검사. 사용: python3 scripts/visual.py FILE [--json]"""
+"""im-a-monkey 시각 요소 검사. 사용: python3 scripts/visual.py FILE... [--json]"""
 from __future__ import annotations
 
 import argparse
@@ -9,7 +9,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from textutil import Finding, _OFF_ON, fence_spans, line_col, strip_ignored  # noqa: E402
+from textutil import Finding, _OFF_ON, fence_spans, line_col, run_files, strip_ignored  # noqa: E402
 
 _MARKER = re.compile(r"<!--\s*visual:(.*?)-->", re.S)
 _FIG_INFO = re.compile(r"(?:mermaid|svg)\b")
@@ -74,17 +74,10 @@ def check(text: str) -> list[Finding]:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("file")
+    ap.add_argument("files", nargs="+", metavar="FILE", help="파일 또는 폴더(*.md 재귀)")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
-    with open(a.file, encoding="utf-8", newline="") as f:
-        found = check(f.read())
-    if a.json:
-        print(json.dumps([f.__dict__ for f in found], ensure_ascii=False))
-    else:
-        for f in found:
-            print(f)
-    return 1 if found else 0
+    return run_files(a.files, check, a.json)
 
 
 if __name__ == "__main__":
