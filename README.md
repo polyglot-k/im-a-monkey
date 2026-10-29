@@ -52,6 +52,8 @@ flowchart LR
            블록 순서: 결론 → 흐름 그림 → 예시 → 위험 → 요청 → 열린 질문
 ```
 
+스킬별 전후 사례를 더 보려면 [examples/](examples/README.md)를 열어 보세요.
+
 ## 설치
 
 ```
