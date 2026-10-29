@@ -1,6 +1,6 @@
 {
   "name": "im-a-monkey",
-  "description": "Claude가 원숭이도 끝까지 읽는 한국어를 쓰게 만드는 플러그인. AI 티·번역투 제거, 쉬운 설명, 목적별 문서 구조, 그림 캡션까지.",
+  "description": "원숭이도 끝까지 읽는 한국어를 쓰게 하는 Claude Code 플러그인",
   "owner": {
     "name": "polyglot-k"
   },
@@ -8,7 +8,7 @@
     {
       "name": "im-a-monkey",
       "source": "./",
-      "description": "Claude가 원숭이도 끝까지 읽는 한국어를 쓰게 만드는 플러그인. AI 티·번역투 제거, 쉬운 설명, 목적별 문서 구조, 그림 캡션까지."
+      "description": "원숭이도 끝까지 읽는 한국어를 쓰게 하는 Claude Code 플러그인"
     }
   ]
 }
