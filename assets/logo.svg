@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="im-a-monkey 로고: 한쪽 눈이 터미널 프롬프트인 원숭이">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b2230"/>
+      <stop offset="1" stop-color="#0b0f16"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="224" height="224" rx="52" fill="url(#bg)"/>
+  <rect x="8" y="8" width="224" height="224" rx="52" fill="none" stroke="#ffd23f" stroke-opacity=".35" stroke-width="3"/>
+  <!-- ears -->
+  <circle cx="52" cy="126" r="24" fill="#9a6235"/>
+  <circle cx="188" cy="126" r="24" fill="#9a6235"/>
+  <circle cx="52" cy="126" r="13" fill="#f2c894"/>
+  <circle cx="188" cy="126" r="13" fill="#f2c894"/>
+  <!-- head + tuft -->
+  <path d="M112 44 q6 -16 20 -12 q-12 4 -8 14z" fill="#9a6235"/>
+  <circle cx="120" cy="122" r="70" fill="#9a6235"/>
+  <!-- face -->
+  <path d="M120 82 c-14 -10 -40 -10 -50 8 c-14 24 -6 50 6 64 c12 16 30 24 44 24 s32 -8 44 -24 c12 -14 20 -40 6 -64 c-10 -18 -36 -18 -50 -8z" fill="#f2c894"/>
+  <!-- left eye: terminal prompt -->
+  <path d="M82 102 l18 12 l-18 12" fill="none" stroke="#0b0f16" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- right eye: big, looking the wrong way -->
+  <circle cx="148" cy="112" r="17" fill="#fff"/>
+  <circle cx="156" cy="104" r="8" fill="#0b0f16"/>
+  <!-- nose -->
+  <circle cx="112" cy="138" r="3.5" fill="#6b3f1f"/>
+  <circle cx="128" cy="138" r="3.5" fill="#6b3f1f"/>
+  <!-- grin + cursor tongue -->
+  <path d="M90 152 q30 26 60 0" fill="none" stroke="#0b0f16" stroke-width="6" stroke-linecap="round"/>
+  <rect x="124" y="158" width="12" height="16" rx="3" fill="#ffd23f"/>
+</svg>

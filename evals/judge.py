@@ -1,0 +1,127 @@
+"""기준선(플러그인 없음) 대 스킬(플러그인 있음) 쌍대 판정 도구."""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+from datetime import datetime
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+BEHAVIOR = ROOT / "evals" / "behavior"
+RUNS = ROOT / "evals" / "runs"
+
+
+def run_claude(prompt: str, plugin_dir: str | None, persona: str = "on") -> str:
+    # 두 팔 모두 빈 임시 폴더에서, 프로젝트 설정만 읽고 MCP 없이 돌린다. 차이는 플러그인뿐이다.
+    # 도구 권한은 두 팔에 똑같이 준다. headless에선 허용하지 않으면 스크립트 실행·참조 읽기가 막힌다.
+    cmd = ["claude", "-p", prompt, "--setting-sources", "project", "--strict-mcp-config"]
+    cmd += ["--allowedTools", "Read,Write,Edit,Bash(python3:*)"]
+    if plugin_dir:
+        cmd += ["--plugin-dir", plugin_dir, "--add-dir", plugin_dir]
+    env = dict(os.environ)
+    if plugin_dir and persona == "off":
+        env["IM_A_MONKEY_VOICE"] = "off"  # 훅이 조용해져서 스킬만 남는다
+    with tempfile.TemporaryDirectory() as cwd:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=300, cwd=cwd, env=env)
+    if r.returncode != 0:
+        raise RuntimeError(f"claude 실패({r.returncode}): {r.stderr.strip()[:300]}")
+    return r.stdout.strip()
+
+
+def judge_prompt(rubric: str, first: str, second: str) -> str:
+    return (
+        "두 답변을 아래 기준만 보고 비교하세요. 답변 길이는 고려하지 마세요. "
+        "순서도 품질과 무관합니다.\n\n"
+        f"## 기준\n{rubric}\n\n## 첫째 답변\n{first}\n\n## 둘째 답변\n{second}\n\n"
+        "기준에 더 잘 맞는 쪽의 이유를 짧게 쓰고, 마지막 줄에 "
+        "`VERDICT: FIRST`, `VERDICT: SECOND`, `VERDICT: TIE` 중 하나만 쓰세요."
+    )
+
+
+def parse_verdict(output: str) -> str:
+    found = re.findall(r"VERDICT:\s*(FIRST|SECOND|TIE)", output)
+    return found[-1] if found else "TIE"
+
+
+def combine(v_ab: str, v_ba: str) -> str:
+    # A=기준선, B=스킬. AB에선 SECOND, BA에선 FIRST가 스킬 승.
+    if v_ab == "SECOND" and v_ba == "FIRST":
+        return "skill"
+    if v_ab == "FIRST" and v_ba == "SECOND":
+        return "baseline"
+    return "tie"
+
+
+def majority(verdicts: list[str]) -> str:
+    # 최다 득표. 최다가 둘 이상이면 tie.
+    top = max(verdicts.count(v) for v in set(verdicts))
+    winners = {v for v in verdicts if verdicts.count(v) == top}
+    return winners.pop() if len(winners) == 1 else "tie"
+
+
+def run_case(case: Path, out: Path, repeat: int = 1, persona: str = "on") -> str:
+    prompt = (case / "prompt.md").read_text(encoding="utf-8")
+    rubric = (case / "rubric.md").read_text(encoding="utf-8")
+    base = run_claude(prompt, None)
+    skill = run_claude(prompt, str(ROOT), persona)
+    rounds = []
+    for _ in range(repeat):
+        v_ab = parse_verdict(run_claude(judge_prompt(rubric, base, skill), None))
+        v_ba = parse_verdict(run_claude(judge_prompt(rubric, skill, base), None))
+        rounds.append({"ab": v_ab, "ba": v_ba, "combined": combine(v_ab, v_ba)})
+    result = majority([r["combined"] for r in rounds])
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "baseline.md").write_text(base, encoding="utf-8")
+    (out / "skill.md").write_text(skill, encoding="utf-8")
+    (out / "verdict.json").write_text(
+        json.dumps({"persona": persona, "rounds": rounds, "final": result}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    return result
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("skill")
+    ap.add_argument("--case")
+    ap.add_argument(
+        "--persona", choices=("on", "off"), default="on",
+        help="off: 스킬 쪽에 IM_A_MONKEY_VOICE=off를 줘서 상시 페르소나 훅을 끈다",
+    )
+    ap.add_argument("--repeat", type=int, default=1, help="판정 반복 횟수(다수결)")
+    args = ap.parse_args()
+    if args.repeat < 1:
+        print("--repeat은 1 이상이어야 해요", file=sys.stderr)
+        return 2
+    skill_dir = BEHAVIOR / args.skill
+    if not skill_dir.is_dir():
+        print(f"스킬 폴더가 없어요: {skill_dir}", file=sys.stderr)
+        return 2
+    cases = sorted(p for p in skill_dir.iterdir() if p.is_dir())
+    if args.case:
+        cases = [p for p in cases if p.name == args.case]
+        if not cases:
+            print(f"사례가 없어요: {args.skill}/{args.case}", file=sys.stderr)
+            return 2
+    stamp = datetime.now().strftime("%Y%m%d-%H%M")
+    tally = {"skill": 0, "baseline": 0, "tie": 0, "error": 0}
+    for case in cases:
+        try:
+            res = run_case(case, RUNS / stamp / args.skill / case.name, args.repeat, args.persona)
+        except (RuntimeError, subprocess.TimeoutExpired, OSError) as e:
+            tally["error"] += 1
+            print(f"ERROR {case.name}: {e}")
+            continue
+        tally[res] += 1
+        print(f"{case.name}: {res}")
+    print(f"skill {tally['skill']} / baseline {tally['baseline']} / tie {tally['tie']} / error {tally['error']}")
+    return 1 if tally["error"] else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
