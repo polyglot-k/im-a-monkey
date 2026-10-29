@@ -51,13 +51,19 @@ def _blank_str(t: str) -> str:
     return "".join("\n" if c == "\n" else " " for c in t)
 
 
-def strip_ignored(text: str) -> str:
-    """무시 구간을 같은 길이의 공백으로 바꾼다(줄바꿈 유지)."""
+def strip_blocks(text: str) -> str:
+    """off/on 구간과 코드 펜스만 공백으로 바꾼다(인라인 코드는 남긴다)."""
     text = text.replace("\r\n", "\n")
     # off/on 구간을 먼저 지워야 그 안의 펜스·주석이 바깥 구조를 깨지 못한다.
     text = _OFF_ON.sub(_blank, text)
     for a, b, _ in fence_spans(text):
         text = text[:a] + _blank_str(text[a:b]) + text[b:]
+    return text
+
+
+def strip_ignored(text: str) -> str:
+    """무시 구간을 같은 길이의 공백으로 바꾼다(줄바꿈 유지)."""
+    text = strip_blocks(text)
     # 인라인 코드를 주석보다 먼저: `<!--`가 이어지는 글을 지우지 않게 한다.
     for pat in (_INLINE, _COMMENT):
         text = pat.sub(_blank, text)

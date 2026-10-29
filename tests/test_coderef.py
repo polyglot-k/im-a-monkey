@@ -38,6 +38,29 @@ class CoderefTest(unittest.TestCase):
     def test_unknown_sha(self):
         self.assertEqual(len(check("`a.py:1@deadbeef`", self.repo)), 1)
 
+    def test_skips_fenced_and_off_regions(self):
+        bad = f"`a.py:99@{self.sha}`"
+        src = f"```\n{bad}\n```\n<!-- monkey-lint: off -->\n{bad}\n<!-- monkey-lint: on -->\n{bad}"
+        found = check(src, self.repo)
+        self.assertEqual([f.line for f in found], [7])
+
+    def test_bracket_inside_backticked_label(self):
+        url = f"https://github.com/o/r/blob/{self.sha}/a.py#L2"
+        self.assertEqual(check(f"[`cancel_order[0]`]({url})", self.repo), [])
+        out = check(f"[`cancel_order[0]`]({url[:-1]}9)", self.repo)  # 줄 범위 밖인 링크도 잡아야 한다
+        self.assertEqual([f.message for f in out], ["줄 범위 밖"])
+
+    def test_git_missing_exits_2(self):
+        with tempfile.TemporaryDirectory() as d:
+            doc = os.path.join(d, "d.md")
+            with open(doc, "w", encoding="utf-8") as f:
+                f.write(f"`a.py:1@{self.sha}`")
+            r = subprocess.run([sys.executable, "scripts/coderef.py", doc, "--repo", d],
+                               capture_output=True, text=True, env={"PATH": d})
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("git", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
